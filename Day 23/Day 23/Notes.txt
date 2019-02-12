@@ -1,0 +1,37 @@
+# [a = 12, b = 0, c = 0, d = 0]
+[ 0] cpy a b    # b = a                     a: 12, b: 12, c: 0, d: 0
+[ 1] dec b      # b = b - 1                 a: 7, b: 6, c: 0, d: 0
+
+[ 2] cpy a d    # d = a                     a: 7, b: 6, c: 0, d: 7
+[ 3] cpy 0 a    # a = 0                     a: 0, b: 6, c: 0, d: 7
+
+[ 4] cpy b c    # c = b                     a: 0, b: 6, c: 6, d: 7
+
+[ 5] inc a      # a = a + 1                 a: 1, b: 6, c: 6, d: 7
+[ 6] dec c      # c = c - 1                 a: 1, b: 6, c: 5, d: 7
+[ 7] jnz c -2   # if c != 0 goto 5
+
+[ 8] dec d      # d = d - 1                 a: 6, b: 6, c: 0, d: 6
+[ 9] jnz d -5   # if d !- 0 goto 4
+
+[10] dec b      # b = b - 1                 a: 42, b: 5, c: 0, d: 0
+[11] cpy b c    # c = b                     a: 42, b: 5, c: 5, d: 0
+[12] cpy c d    # d = c                     a: 42, b: 5, c: 5, d: 5
+
+[13] dec d      # d = d - 1
+[14] inc c      # c = c + 1
+[15] jnz d -2   # if d != 0 goto 13
+
+[16] tgl c      # tgl instruction @ ip + c  a: 42, b: 5, c: 10, d: 0
+[17] cpy -16 c  # c = -16
+[18] jnz 1 c    # goto instruction @ ip + c # goto 2 # now cpy
+[19] cpy 73 c   # c = 73
+
+[20] jnz 80 d   # goto instruction @ ip + d # now cpy
+[21] inc a      # a = a + 1
+[22] inc d      # d = d + 1                 # now dec
+[23] jnz d -2   # if d != 0 goto 21
+[24] inc c      # c = c + 1                 # now dec
+[25] jnz c -5   # if c != 0 goto 20
+
+net net: 7! + 73 * 80

@@ -64,7 +64,7 @@ func getViablePairs(in nodes: [Node]) -> [(a: Node, b: Node)] {
     return result
 }
 
-let nodes = Node.load(from: InputData.example)
+let nodes = Node.load(from: InputData.challenge)
 print("Count:", nodes.count)
 let maxX = nodes.map { $0.x }.max()! + 1
 let maxY = nodes.map { $0.y }.max()! + 1
@@ -81,71 +81,23 @@ extension Node {
     var id: String {
         return "\(x),\(y)"
     }
-
-    var neighborIds: [String] {
-        return [
-            "\(x + 1),\(y)",
-            "\(x - 1),\(y)",
-            "\(x),\(y + 1)",
-            "\(x),\(y - 1)",
-        ]
-    }
-
-    var distanceFromOrigin: Int {
-        return x + y
-    }
 }
 
-final class Grid {
-    let nodes: [String: Node]
-    var goalDataLocation: Node
+let nodeMap = Dictionary(uniqueKeysWithValues: nodes.map { ($0.id, $0) })
+let avgSize = nodes.reduce(0) { $0 + $1.size } / nodes.count
 
-    init(nodes: [Node]) {
-        self.nodes = Dictionary(uniqueKeysWithValues: nodes.map { ($0.id, $0) })
-        let maxX = nodes.map { $0.x }.max()! + 1
-        self.goalDataLocation = self.nodes["\(maxX),0"]!
-    }
-
-    func moveGoalDataToOrigin() -> Int {
-        var seen: [Grid: Int] = [:]
-        var queue: [Grid: (steps: Int, estimated: Int)] = [self: (0, 0)]
-
-        while let (grid, (steps, _)) = queue.min(by: { $0.value.estimated < $1.value.estimated }) {
-            queue.removeValue(forKey: grid)
-            if grid.goalDataLocation == nodes["0,0"] {
-                return steps
-            }
-
-            var nextStates: [Grid] = []
-
-            seen[grid] = steps
-        }
-
-        print("No solution available!")
-        return -1
-    }
-
-    func getConnectedNodes(of node: Node) -> [Node] {
-        return node.neighborIds.compactMap { nodes[$0] }
-    }
-
-    private func moveData(from source: Node, to destination: Node) {
-        assert(destination.avail >= source.used)
-        destination.used += source.used
-        source.used = 0
-        if source == goalDataLocation {
-            goalDataLocation = destination
+for y in 0 ..< maxY {
+    for x in 0 ..< maxX {
+        let node = nodeMap["\(x),\(y)"]!
+        if y == 0 && x == (maxX - 1) {
+            print("G", terminator: "")
+        } else if node.used == 0 {
+            print("E", terminator: "")
+        } else if node.used < avgSize {
+            print(".", terminator: "")
+        } else {
+            print("#", terminator: "")
         }
     }
-}
-
-extension Grid: Hashable {
-    static func == (lhs: Grid, rhs: Grid) -> Bool {
-        return lhs.nodes == rhs.nodes && lhs.goalDataLocation == rhs.goalDataLocation
-    }
-
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(nodes)
-        hasher.combine(goalDataLocation)
-    }
+    print("")
 }
